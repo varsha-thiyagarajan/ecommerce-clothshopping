@@ -1,57 +1,29 @@
 // /pages/products/[slug].js
 
+import products from "@/data/products"; // <-- use local data file
+
 export async function getStaticPaths() {
-  // Dynamically get product slugs for SSG
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    (process.env.NEXT_PUBLIC_VERCEL_URL
-      ? "https://" + process.env.NEXT_PUBLIC_VERCEL_URL
-      : "http://localhost:3000");
-
-  const res = await fetch(`${baseUrl}/api/products`);
-  const products = await res.json();
-
   const paths = products.map((p) => ({
     params: { slug: p.slug },
   }));
 
-  return { paths, fallback: "blocking" }; // ISR fallback
+  return { paths, fallback: "blocking" };
 }
 
 export async function getStaticProps({ params }) {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    (process.env.NEXT_PUBLIC_VERCEL_URL
-      ? "https://" + process.env.NEXT_PUBLIC_VERCEL_URL
-      : "http://localhost:3000");
+  const product = products.find((p) => p.slug === params.slug);
 
-  try {
-    const res = await fetch(`${baseUrl}/api/products/${params.slug}`);
-    if (!res.ok) {
-      throw new Error(`Failed to fetch product: ${params.slug}`);
-    }
-
-    const product = await res.json();
-
-    return {
-      props: { product },
-      revalidate: 60, // ISR every 60s
-    };
-  } catch (error) {
-    console.error("❌ Error fetching product:", error);
+  if (!product) {
     return { notFound: true };
   }
+
+  return {
+    props: { product },
+    revalidate: 60,
+  };
 }
 
 export default function ProductDetail({ product }) {
-  if (!product) {
-    return (
-      <div style={{ textAlign: "center", marginTop: "50px" }}>
-        <h2>❌ Product not found</h2>
-      </div>
-    );
-  }
-
   return (
     <div
       style={{
