@@ -1,0 +1,45 @@
+[
+  {
+    "id": "c1",
+    "name": "Classic White T-Shirt",
+    "slug": "classic-white-tshirt",
+    "description": "Soft cotton tee perfect for casual wear.",
+    "price": 499,
+    "category": "men",
+    "inventory": 30,
+    "image": "/images/white-tshirt.jpg",
+    "lastUpdated": "2025-10-27T10:00:00.000Z"
+  },
+  {
+    "id": "c2",
+    "name": "Denim Jeans",
+    "slug": "denim-jeans",
+    "description": "Comfort fit blue denim jeans.",
+    "price": 999,
+    "category": "women",
+    "inventory": 15,
+    "image": "/images/denim-jeans.jpg",
+    "lastUpdated": "2025-10-27T10:00:00.000Z"
+  },
+  {
+    "id": "c3",
+    "name": "Hooded Sweatshirt",
+    "slug": "hooded-sweatshirt",
+    "description": "Cozy hoodie for everyday comfort.",
+    "price": 799,
+    "category": "unisex",
+    "inventory": 20,
+    "image": "/images/hoodie.jpg",
+    "lastUpdated": "2025-10-27T10:00:00.000Z"
+  },
+  {
+    "id": "aabecf46-b3c4-4d24-82d5-58d1bc82ac2b",
+    "name": "TAZO",
+    "slug": "T-shirt green",
+    "description": "Men solid Neck cotton T-Shirt",
+    "price": 288,
+    "category": "Men",
+    "inventory": 12,
+    "lastUpdated": "2025-10-27T17:00:03.782Z"
+  }
+]
