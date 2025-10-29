@@ -1,45 +1,88 @@
 // /pages/products/[slug].js
+
 export async function getStaticPaths() {
-  const res = await fetch("http://localhost:3000/api/products");
+  // Dynamically get product slugs for SSG
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    (process.env.NEXT_PUBLIC_VERCEL_URL
+      ? "https://" + process.env.NEXT_PUBLIC_VERCEL_URL
+      : "http://localhost:3000");
+
+  const res = await fetch(`${baseUrl}/api/products`);
   const products = await res.json();
 
   const paths = products.map((p) => ({
     params: { slug: p.slug },
   }));
 
-  return { paths, fallback: "blocking" };
+  return { paths, fallback: "blocking" }; // ISR fallback
 }
 
 export async function getStaticProps({ params }) {
-  const res = await fetch(`http://localhost:3000/api/products/${params.slug}`);
-  
-  if (!res.ok) {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    (process.env.NEXT_PUBLIC_VERCEL_URL
+      ? "https://" + process.env.NEXT_PUBLIC_VERCEL_URL
+      : "http://localhost:3000");
+
+  try {
+    const res = await fetch(`${baseUrl}/api/products/${params.slug}`);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch product: ${params.slug}`);
+    }
+
+    const product = await res.json();
+
+    return {
+      props: { product },
+      revalidate: 60, // ISR every 60s
+    };
+  } catch (error) {
+    console.error("❌ Error fetching product:", error);
     return { notFound: true };
   }
-
-  const product = await res.json();
-
-  return {
-    props: { product },
-    revalidate: 60, // ISR: Regenerate every 60 seconds
-  };
 }
 
 export default function ProductDetail({ product }) {
-  if (!product) return <h2>Product not found.</h2>;
+  if (!product) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <h2>❌ Product not found</h2>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ textAlign: "center", padding: "40px" }}>
-      <h1>{product.name}</h1>
+    <div
+      style={{
+        maxWidth: "700px",
+        margin: "50px auto",
+        padding: "20px",
+        border: "1px solid #ddd",
+        borderRadius: "10px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+      }}
+    >
       <img
-        src={product.image}
+        src={product.image || "/images/placeholder.jpg"}
         alt={product.name}
-        style={{ width: "250px", borderRadius: "8px", margin: "20px 0" }}
+        style={{
+          width: "100%",
+          height: "350px",
+          objectFit: "cover",
+          borderRadius: "10px",
+          marginBottom: "20px",
+        }}
       />
-      <p>{product.description}</p>
-      <p><strong>Price:</strong> ₹{product.price}</p>
-      <p><strong>Category:</strong> {product.category}</p>
-      <p><strong>In Stock:</strong> {product.inventory}</p>
+      <h1>{product.name}</h1>
+      <p style={{ fontSize: "18px", color: "#555" }}>{product.description}</p>
+      <p style={{ fontWeight: "bold", fontSize: "20px" }}>₹{product.price}</p>
+      <p style={{ color: "#888" }}>Category: {product.category}</p>
+      <p style={{ color: product.inventory > 0 ? "green" : "red" }}>
+        {product.inventory > 0
+          ? `${product.inventory} in stock`
+          : "Out of stock"}
+      </p>
     </div>
   );
 }
